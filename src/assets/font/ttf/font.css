@@ -1,0 +1,137 @@
+/* BoonBaan - Lao + Latin font */
+@font-face {
+    font-family: 'BoonBaan';
+    src: url(./BoonBaan-Regular.ttf) format("truetype");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'BoonBaan';
+    src: url(./BoonBaan-Bold.ttf) format("truetype");
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'BoonBaan';
+    src: url(./BoonBaan-Italic.ttf) format("truetype");
+    font-weight: 400;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'BoonBaan';
+    src: url(./BoonBaan-BoldItalic.ttf) format("truetype");
+    font-weight: 700;
+    font-style: italic;
+}
+
+/* NotoSansLao - Lao script only */
+@font-face {
+    font-family: 'NotoSansLao';
+    src: url(./NotoSansLao-Light.ttf) format("truetype");
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'NotoSansLao';
+    src: url(./NotoSansLao-Regular.ttf) format("truetype");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'NotoSansLao';
+    src: url(./NotoSansLao-Medium.ttf) format("truetype");
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'NotoSansLao';
+    src: url(./NotoSansLao-SemiBold.ttf) format("truetype");
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'NotoSansLao';
+    src: url(./NotoSansLao-Bold.ttf) format("truetype");
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'NotoSansLao';
+    src: url(./NotoSansLao-ExtraBold.ttf) format("truetype");
+    font-weight: 800;
+    font-style: normal;
+}
+
+/* Poppins */
+@font-face {
+    font-family: 'Poppins';
+    src: url(./Poppins-Light.ttf) format("truetype");
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Poppins';
+    src: url(./Poppins-Regular.ttf) format("truetype");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Poppins';
+    src: url(./Poppins-Medium.ttf) format("truetype");
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Poppins';
+    src: url(./Poppins-Bold.ttf) format("truetype");
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* Prompt */
+@font-face {
+    font-family: 'Prompt';
+    src: url(./Prompt-Light.ttf) format("truetype");
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Prompt';
+    src: url(./Prompt-Regular.ttf) format("truetype");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Prompt';
+    src: url(./Prompt-Bold.ttf) format("truetype");
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* Roboto */
+@font-face {
+    font-family: 'Roboto';
+    src: url(./Roboto-Regular.ttf) format("truetype");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url(./Roboto-Bold.ttf) format("truetype");
+    font-weight: 700;
+    font-style: normal;
+}
