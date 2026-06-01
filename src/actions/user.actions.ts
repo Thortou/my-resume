@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import type { Role } from '@prisma/client';
+import type { Role, User } from '@prisma/client';
 import { userService } from '@/services';
 import {
   createUserSchema,
@@ -41,9 +41,9 @@ export async function getUsersAction(params: {
   role?: Role;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
-}): Promise<ActionState> {
+}): Promise<ActionState<{ users: User[]; total: number; page: number; limit: number; totalPages: number }>> {
   const accessError = await checkAdminAccess();
-  if (accessError) return accessError;
+  if (accessError) return accessError as ActionState<never>;
 
   return userService.getAll(params);
 }

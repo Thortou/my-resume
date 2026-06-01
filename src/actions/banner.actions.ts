@@ -9,6 +9,7 @@ import {
   type UpdateBannerInput,
 } from '@/schemas';
 import type { ActionState } from '@/types';
+import type { Banner } from '@prisma/client';
 import { getCurrentUser } from '@/lib/auth';
 
 // Helper to check admin access
@@ -40,9 +41,9 @@ export async function getBannersAction(params: {
   isActive?: boolean;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
-}): Promise<ActionState> {
+}): Promise<ActionState<{ banners: Banner[]; total: number; page: number; limit: number; totalPages: number }>> {
   const accessError = await checkAdminAccess();
-  if (accessError) return accessError;
+  if (accessError) return accessError as ActionState<never>;
 
   return bannerService.getAll(params);
 }
@@ -81,7 +82,13 @@ export async function createBannerAction(
     };
   }
 
-  const result = await bannerService.create(validatedFields.data);
+  const data = {
+    ...validatedFields.data,
+    description: validatedFields.data.description ?? undefined,
+    link: validatedFields.data.link ?? undefined,
+  };
+
+  const result = await bannerService.create(data);
 
   if (result.success) {
     revalidatePath('/admin/banners');
@@ -113,7 +120,13 @@ export async function updateBannerAction(
     };
   }
 
-  const result = await bannerService.update(id, validatedFields.data);
+  const data = {
+    ...validatedFields.data,
+    description: validatedFields.data.description ?? undefined,
+    link: validatedFields.data.link ?? undefined,
+  };
+
+  const result = await bannerService.update(id, data);
 
   if (result.success) {
     revalidatePath('/admin/banners');

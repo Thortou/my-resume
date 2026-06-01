@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate file type
-    if (!UPLOAD.ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+    if (!(UPLOAD.ACCEPTED_IMAGE_TYPES as readonly string[]).includes(file.type)) {
       return NextResponse.json(
         {
           success: false,

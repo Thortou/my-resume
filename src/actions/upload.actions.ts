@@ -16,7 +16,7 @@ function isValidImageType(base64: string): boolean {
   if (!mimeMatch) return false;
 
   const mimeType = mimeMatch[1];
-  return UPLOAD.ACCEPTED_IMAGE_TYPES.includes(mimeType);
+  return (UPLOAD.ACCEPTED_IMAGE_TYPES as readonly string[]).includes(mimeType);
 }
 
 // Get file size from base64

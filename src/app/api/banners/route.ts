@@ -81,7 +81,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await bannerService.create(validationResult.data);
+    const data = {
+      ...validationResult.data,
+      description: validationResult.data.description ?? undefined,
+      link: validationResult.data.link ?? undefined,
+    };
+
+    const result = await bannerService.create(data);
 
     if (!result.success) {
       return NextResponse.json(result, { status: 400 });

@@ -39,7 +39,7 @@ export async function getConversationsAction(params?: {
   }>
 > {
   const auth = await checkAuth();
-  if ('success' in auth) return auth;
+  if ('success' in auth) return auth as ActionState<never>;
 
   return conversationService.getAll({
     userId: auth.userId,
@@ -52,7 +52,7 @@ export async function getConversationAction(
   conversationId: string
 ): Promise<ActionState<ConversationWithMessages>> {
   const auth = await checkAuth();
-  if ('success' in auth) return auth;
+  if ('success' in auth) return auth as ActionState<never>;
 
   return conversationService.getByIdWithMessages(conversationId, auth.userId);
 }
@@ -62,7 +62,7 @@ export async function getMessagesAction(
   conversationId: string
 ): Promise<ActionState<ChatMessage[]>> {
   const auth = await checkAuth();
-  if ('success' in auth) return auth;
+  if ('success' in auth) return auth as ActionState<never>;
 
   return chatService.getMessages(conversationId, auth.userId);
 }
@@ -72,7 +72,7 @@ export async function createConversationAction(
   title?: string
 ): Promise<ActionState<{ id: string; title: string }>> {
   const auth = await checkAuth();
-  if ('success' in auth) return auth;
+  if ('success' in auth) return auth as ActionState<never>;
 
   const result = await conversationService.create(auth.userId, title);
 

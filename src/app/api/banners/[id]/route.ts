@@ -98,7 +98,13 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const result = await bannerService.update(id, validationResult.data);
+    const data = {
+      ...validationResult.data,
+      description: validationResult.data.description ?? undefined,
+      link: validationResult.data.link ?? undefined,
+    };
+
+    const result = await bannerService.update(id, data);
 
     if (!result.success) {
       return NextResponse.json(result, { status: 400 });

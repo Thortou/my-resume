@@ -2,11 +2,12 @@
 
 import { visitService } from '@/services';
 import type { ActionState } from '@/types';
+import type { SiteVisit } from '@prisma/client';
 
 // Increment visit count (public - called from client)
 export async function incrementVisitAction(
   page: string = '/'
-): Promise<ActionState> {
+): Promise<ActionState<SiteVisit>> {
   return visitService.incrementVisit(page);
 }
 

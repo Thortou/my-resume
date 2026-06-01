@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { LoginForm } from '@/components/forms';
@@ -20,7 +21,9 @@ export default function LoginPage() {
         </div>
 
         {/* ແບບຟອມເຂົ້າສູ່ລະບົບ */}
-        <LoginForm />
+        <Suspense fallback={<div className="h-96 animate-pulse bg-gray-100 rounded-lg" />}>
+          <LoginForm />
+        </Suspense>
 
         {/* ກັບໄປໜ້າຫຼັກ */}
         <div className="mt-6 text-center">
