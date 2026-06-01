@@ -1,6 +1,21 @@
+import NextAuth from 'next-auth';
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { auth } from '@/lib/auth';
+import { authConfig } from '@/lib/auth.config';
+
+/**
+ * Edge-compatible middleware
+ *
+ * IMPORTANT: This file must NOT import from '@/lib/auth' directly
+ * as that would bundle Prisma (~800KB+) into the Edge Function.
+ *
+ * Instead, we import only the Edge-compatible authConfig which contains:
+ * - JWT session strategy
+ * - Callbacks for token/session handling
+ * - No database clients or Node.js-only libraries
+ */
+
+// Create auth instance for middleware (Edge-compatible)
+const { auth } = NextAuth(authConfig);
 
 // Routes that require authentication (any authenticated user)
 const authenticatedRoutes = ['/chat'];

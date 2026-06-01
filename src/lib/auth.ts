@@ -1,31 +1,18 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { compare } from 'bcryptjs';
-import type { Role } from '@prisma/client';
 import prisma from './prisma';
+import { authConfig, type Role } from './auth.config';
 
-// Extend the built-in session types
-declare module 'next-auth' {
-  interface Session {
-    user: {
-      id: string;
-      name: string | null;
-      email: string;
-      image: string | null;
-      role: Role;
-    };
-  }
-
-  interface User {
-    id: string;
-    name: string | null;
-    email: string;
-    image: string | null;
-    role: Role;
-  }
-}
-
+/**
+ * Full auth configuration with Credentials provider
+ * This file imports Prisma and bcryptjs - only for server-side use
+ *
+ * DO NOT import this file in middleware.ts - it will bundle Prisma (~800KB+)
+ * Use auth.config.ts for Edge Runtime (middleware)
+ */
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...authConfig,
   providers: [
     Credentials({
       name: 'credentials',
@@ -66,59 +53,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: user.name,
           email: user.email,
           image: user.image,
-          role: user.role,
+          role: user.role as Role,
         };
       },
     }),
   ],
-
-  session: {
-    strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-
-  pages: {
-    signIn: '/login',
-    error: '/login',
-  },
-
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = user.role;
-      }
-      return token;
-    },
-
-    async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as Role;
-      }
-      return session;
-    },
-
-    async authorized({ auth, request }) {
-      const { pathname } = request.nextUrl;
-
-      // Check if route requires authentication
-      if (pathname.startsWith('/admin')) {
-        if (!auth?.user) {
-          return false;
-        }
-
-        // Only ADMIN can access admin routes
-        if (auth.user.role !== 'ADMIN') {
-          return false;
-        }
-      }
-
-      return true;
-    },
-  },
-
-  trustHost: true,
 });
 
 // Helper to get current session (server-side)
@@ -138,3 +77,6 @@ export async function isCurrentUserAdmin() {
   const session = await auth();
   return session?.user?.role === 'ADMIN';
 }
+
+// Re-export Role type for convenience
+export type { Role } from './auth.config';
