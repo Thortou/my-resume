@@ -1,20 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Form, Input, Button, Alert, Card } from 'antd';
-import { MailOutlined, LockOutlined } from '@ant-design/icons';
+import { UserOutlined, MailOutlined, LockOutlined } from '@ant-design/icons';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema, type LoginInput } from '@/schemas';
-import { loginAction } from '@/actions';
+import { registerSchema, type RegisterInput } from '@/schemas';
+import { registerAction } from '@/actions';
 import { ROUTES } from '@/constants';
 
-export function LoginForm() {
+export function RegisterForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl');
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,36 +21,28 @@ export function LoginForm() {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterInput>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
+      name: '',
       email: '',
       password: '',
+      confirmPassword: '',
     },
   });
 
-  const onSubmit = async (data: LoginInput) => {
+  const onSubmit = async (data: RegisterInput) => {
     setIsLoading(true);
     setError(null);
 
-    const result = await loginAction(data);
+    const result = await registerAction(data);
 
     if (result.success) {
-      // If there's a callback URL, use it; otherwise redirect based on role
-      if (callbackUrl) {
-        router.push(callbackUrl);
-      } else {
-        // Redirect based on user role
-        const role = result.data?.role;
-        if (role === 'ADMIN') {
-          router.push(ROUTES.ADMIN_DASHBOARD);
-        } else {
-          router.push(ROUTES.HOME);
-        }
-      }
+      // After successful registration, redirect to home (user role always goes to home)
+      router.push(ROUTES.HOME);
       router.refresh();
     } else {
-      setError(result.error || 'Login failed');
+      setError(result.error || 'Registration failed');
       setIsLoading(false);
     }
   };
@@ -60,8 +50,8 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md shadow-lg">
       <div className="mb-6 text-center">
-        <h1 className="text-2xl font-bold text-gray-900">ຍິນດີຕ້ອນຮັບກັບມາ</h1>
-        <p className="mt-2 text-gray-600">ເຂົ້າສູ່ລະບົບບັນຊີຂອງທ່ານ</p>
+        <h1 className="text-2xl font-bold text-gray-900">ສ້າງບັນຊີໃໝ່</h1>
+        <p className="mt-2 text-gray-600">ລົງທະບຽນເພື່ອເລີ່ມຕົ້ນໃຊ້ງານ</p>
       </div>
 
       {error && (
@@ -76,6 +66,26 @@ export function LoginForm() {
       )}
 
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
+        <Form.Item
+          label="ຊື່"
+          validateStatus={errors.name ? 'error' : undefined}
+          help={errors.name?.message}
+        >
+          <Controller
+            name="name"
+            control={control}
+            render={({ field }) => (
+              <Input
+                {...field}
+                prefix={<UserOutlined className="text-gray-400" />}
+                placeholder="ປ້ອນຊື່ຂອງທ່ານ"
+                size="large"
+                autoComplete="name"
+              />
+            )}
+          />
+        </Form.Item>
+
         <Form.Item
           label="ອີເມວ"
           validateStatus={errors.email ? 'error' : undefined}
@@ -110,7 +120,27 @@ export function LoginForm() {
                 prefix={<LockOutlined className="text-gray-400" />}
                 placeholder="ປ້ອນລະຫັດຜ່ານຂອງທ່ານ"
                 size="large"
-                autoComplete="current-password"
+                autoComplete="new-password"
+              />
+            )}
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="ຢືນຢັນລະຫັດຜ່ານ"
+          validateStatus={errors.confirmPassword ? 'error' : undefined}
+          help={errors.confirmPassword?.message}
+        >
+          <Controller
+            name="confirmPassword"
+            control={control}
+            render={({ field }) => (
+              <Input.Password
+                {...field}
+                prefix={<LockOutlined className="text-gray-400" />}
+                placeholder="ປ້ອນລະຫັດຜ່ານອີກຄັ້ງ"
+                size="large"
+                autoComplete="new-password"
               />
             )}
           />
@@ -124,17 +154,17 @@ export function LoginForm() {
             block
             loading={isLoading}
           >
-            ເຂົ້າສູ່ລະບົບ
+            ລົງທະບຽນ
           </Button>
         </Form.Item>
 
         <div className="text-center text-sm text-gray-600">
-          ຍັງບໍ່ມີບັນຊີ?{' '}
+          ມີບັນຊີແລ້ວບໍ?{' '}
           <Link
-            href={ROUTES.REGISTER}
+            href={ROUTES.LOGIN}
             className="font-medium text-primary-600 hover:text-primary-700"
           >
-            ລົງທະບຽນ
+            ເຂົ້າສູ່ລະບົບ
           </Link>
         </div>
       </Form>

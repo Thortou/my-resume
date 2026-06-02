@@ -2,8 +2,10 @@
 // ຄ່າຄົງທີ່ຂອງແອັບພລິເຄຊັນ
 // ===========================================
 
-export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'ເລີ່ມຕົ້ນ Full Stack';
-export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+export const APP_NAME =
+  process.env.NEXT_PUBLIC_APP_NAME || 'ເລີ່ມຕົ້ນ Full Stack';
+export const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
 // ===========================================
 // ຄ່າເລີ່ມຕົ້ນການແບ່ງໜ້າ
@@ -32,9 +34,14 @@ export const ROUTES = {
   CONTACT: '/contact',
   PRODUCTS: '/products',
   LOGIN: '/login',
+  REGISTER: '/register',
 
   // ເສັ້ນທາງທີ່ຕ້ອງເຂົ້າສູ່ລະບົບ
   CHAT: '/chat',
+  RESUMES: '/resumes',
+  RESUME_NEW: '/resumes/new',
+  RESUME_EDIT: (id: string) => `/resumes/${id}/edit`,
+  RESUME_PUBLIC: (slug: string) => `/r/${slug}`,
 
   // ເສັ້ນທາງຜູ້ບໍລິຫານ
   ADMIN_DASHBOARD: '/admin/dashboard',
@@ -61,6 +68,7 @@ export const MESSAGES = {
   // ຂໍ້ຄວາມສຳເລັດ
   LOGIN_SUCCESS: 'ເຂົ້າສູ່ລະບົບສຳເລັດ',
   LOGOUT_SUCCESS: 'ອອກຈາກລະບົບສຳເລັດ',
+  REGISTER_SUCCESS: 'ລົງທະບຽນສຳເລັດ',
   CREATE_SUCCESS: 'ສ້າງສຳເລັດແລ້ວ',
   UPDATE_SUCCESS: 'ອັບເດດສຳເລັດແລ້ວ',
   DELETE_SUCCESS: 'ລຶບສຳເລັດແລ້ວ',
@@ -123,6 +131,7 @@ export const CLOUDINARY_FOLDERS = {
   USERS: 'full-stack-starter/users',
   PRODUCTS: 'full-stack-starter/products',
   BANNERS: 'full-stack-starter/banners',
+  RESUMES: 'full-stack-starter/resumes',
 } as const;
 
 export type CloudinaryFolder =

@@ -195,3 +195,6 @@ body {
     font-family: var(--font-lao), 'BoonBaan', system-ui, sans-serif;
   }
 }
+
+/* Resume print styles */
+@import './resume-print.css';

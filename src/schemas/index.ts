@@ -4,3 +4,4 @@ export * from './user.schema';
 export * from './banner.schema';
 export * from './contact.schema';
 export * from './chat.schema';
+export * from './resume.schema';

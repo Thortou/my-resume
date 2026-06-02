@@ -1,0 +1,95 @@
+/* Resume Print Styles */
+/* This file contains print-specific styles for the resume builder */
+
+@media print {
+  /* Hide non-resume elements */
+  .resume-form,
+  .resume-toggle,
+  .resume-form-panel,
+  nav,
+  header,
+  footer,
+  .print\:hidden,
+  button:not(.print-btn) {
+    display: none !important;
+  }
+
+  /* Reset body */
+  body {
+    margin: 0;
+    padding: 0;
+    background: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* A4 sizing */
+  .resume-preview {
+    margin: 0;
+    padding: 0;
+  }
+
+  .resume-page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0;
+    padding: 0;
+    box-shadow: none !important;
+    page-break-after: always;
+  }
+
+  /* Page break handling */
+  .resume-section {
+    page-break-inside: avoid;
+  }
+
+  /* Ensure colors print correctly */
+  .bg-slate-700 {
+    background-color: #334155 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Clean typography */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Ensure links are visible */
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  /* Remove shadows */
+  .shadow,
+  .shadow-sm,
+  .shadow-md,
+  .shadow-lg,
+  .shadow-xl,
+  .shadow-2xl {
+    box-shadow: none !important;
+  }
+
+  /* Ensure proper page margins */
+  @page {
+    size: A4;
+    margin: 0;
+  }
+}
+
+/* Print-specific visibility utilities */
+.print-only {
+  display: none !important;
+}
+
+@media print {
+  .print-only {
+    display: block !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}

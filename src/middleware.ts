@@ -18,13 +18,13 @@ import { authConfig } from '@/lib/auth.config';
 const { auth } = NextAuth(authConfig);
 
 // Routes that require authentication (any authenticated user)
-const authenticatedRoutes = ['/chat'];
+const authenticatedRoutes = ['/chat', '/resumes'];
 
 // Routes that require admin authentication
 const protectedRoutes = ['/admin'];
 
 // Routes that should redirect authenticated users
-const authRoutes = ['/login'];
+const authRoutes = ['/login', '/register'];
 
 export default auth((req) => {
   const { nextUrl } = req;
@@ -39,9 +39,7 @@ export default auth((req) => {
     nextUrl.pathname.startsWith(route)
   );
 
-  const isAuthRoute = authRoutes.some(
-    (route) => nextUrl.pathname === route
-  );
+  const isAuthRoute = authRoutes.some((route) => nextUrl.pathname === route);
 
   // Redirect authenticated users away from auth pages
   if (isAuthRoute && isLoggedIn) {

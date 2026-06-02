@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { Menu, X, MessageSquare, LogOut } from 'lucide-react';
+import { Menu, X, MessageSquare, LogOut, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { APP_NAME, ROUTES } from '@/constants';
 
@@ -41,9 +41,7 @@ export function Navbar() {
               href={link.href}
               className={cn(
                 'text-sm font-medium transition-colors hover:text-primary-600',
-                pathname === link.href
-                  ? 'text-primary-600'
-                  : 'text-gray-600'
+                pathname === link.href ? 'text-primary-600' : 'text-gray-600'
               )}
             >
               {link.label}
@@ -52,6 +50,18 @@ export function Navbar() {
 
           {isAuthenticated ? (
             <>
+              <Link
+                href={ROUTES.RESUMES}
+                className={cn(
+                  'flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-primary-600',
+                  pathname?.startsWith(ROUTES.RESUMES)
+                    ? 'text-primary-600'
+                    : 'text-gray-600'
+                )}
+              >
+                <FileText size={16} />
+                Resumes
+              </Link>
               <Link
                 href={ROUTES.CHAT}
                 className={cn(
@@ -78,12 +88,20 @@ export function Navbar() {
               </div>
             </>
           ) : (
-            <Link
-              href={ROUTES.LOGIN}
-              className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"
-            >
-              ເຂົ້າສູ່ລະບົບ
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link
+                href={ROUTES.LOGIN}
+                className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600"
+              >
+                ເຂົ້າສູ່ລະບົບ
+              </Link>
+              <Link
+                href={ROUTES.REGISTER}
+                className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"
+              >
+                ລົງທະບຽນ
+              </Link>
+            </div>
           )}
         </div>
 
@@ -107,9 +125,7 @@ export function Navbar() {
                 href={link.href}
                 className={cn(
                   'text-sm font-medium transition-colors hover:text-primary-600',
-                  pathname === link.href
-                    ? 'text-primary-600'
-                    : 'text-gray-600'
+                  pathname === link.href ? 'text-primary-600' : 'text-gray-600'
                 )}
                 onClick={() => setIsOpen(false)}
               >
@@ -119,6 +135,19 @@ export function Navbar() {
 
             {isAuthenticated ? (
               <>
+                <Link
+                  href={ROUTES.RESUMES}
+                  className={cn(
+                    'flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-primary-600',
+                    pathname?.startsWith(ROUTES.RESUMES)
+                      ? 'text-primary-600'
+                      : 'text-gray-600'
+                  )}
+                  onClick={() => setIsOpen(false)}
+                >
+                  <FileText size={16} />
+                  Resumes
+                </Link>
                 <Link
                   href={ROUTES.CHAT}
                   className={cn(
@@ -149,13 +178,22 @@ export function Navbar() {
                 </div>
               </>
             ) : (
-              <Link
-                href={ROUTES.LOGIN}
-                className="rounded-lg bg-primary-600 px-4 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-primary-700"
-                onClick={() => setIsOpen(false)}
-              >
-                ເຂົ້າສູ່ລະບົບ
-              </Link>
+              <div className="flex flex-col gap-3">
+                <Link
+                  href={ROUTES.LOGIN}
+                  className="rounded-lg border border-primary-600 px-4 py-2 text-center text-sm font-medium text-primary-600 transition-colors hover:bg-primary-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  ເຂົ້າສູ່ລະບົບ
+                </Link>
+                <Link
+                  href={ROUTES.REGISTER}
+                  className="rounded-lg bg-primary-600 px-4 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-primary-700"
+                  onClick={() => setIsOpen(false)}
+                >
+                  ລົງທະບຽນ
+                </Link>
+              </div>
             )}
           </div>
         </div>
