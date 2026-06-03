@@ -2,15 +2,15 @@ import Link from 'next/link';
 import { APP_NAME, ROUTES } from '@/constants';
 
 const footerLinks = {
-  product: [
-    { href: ROUTES.PRODUCTS, label: 'ຜະລິດຕະພັນ' },
-    { href: '#', label: 'ລາຄາ' },
-    { href: '#', label: 'ຄຸນສົມບັດ' },
+  shop: [
+    { href: ROUTES.SHOP, label: 'ຮ້ານຄ້າ' },
+    { href: ROUTES.CART, label: 'ກະຕ່າສິນຄ້າ' },
+    { href: ROUTES.WISHLIST, label: 'ລາຍການທີ່ມັກ' },
   ],
   company: [
     { href: ROUTES.ABOUT, label: 'ກ່ຽວກັບ' },
     { href: ROUTES.CONTACT, label: 'ຕິດຕໍ່' },
-    { href: '#', label: 'ອາຊີບ' },
+    { href: ROUTES.ORDERS, label: 'ຄຳສັ່ງຊື້' },
   ],
   legal: [
     { href: '#', label: 'ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ' },
@@ -27,7 +27,10 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-4">
           {/* ແບຣນ */}
           <div>
-            <Link href={ROUTES.HOME} className="text-xl font-bold text-gray-900">
+            <Link
+              href={ROUTES.HOME}
+              className="text-xl font-bold text-gray-900"
+            >
               {APP_NAME}
             </Link>
             <p className="mt-4 text-sm text-gray-600">
@@ -36,13 +39,13 @@ export function Footer() {
             </p>
           </div>
 
-          {/* ລິ້ງຜະລິດຕະພັນ */}
+          {/* ລິ້ງຮ້ານຄ້າ */}
           <div>
             <h3 className="text-sm font-semibold uppercase text-gray-900">
-              ຜະລິດຕະພັນ
+              ຮ້ານຄ້າ
             </h3>
             <ul className="mt-4 space-y-3">
-              {footerLinks.product.map((link) => (
+              {footerLinks.shop.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}

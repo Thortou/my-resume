@@ -32,9 +32,17 @@ export const ROUTES = {
   HOME: '/',
   ABOUT: '/about',
   CONTACT: '/contact',
-  PRODUCTS: '/products',
   LOGIN: '/login',
   REGISTER: '/register',
+
+  // ເສັ້ນທາງຮ້ານຄ້າ (Customer)
+  SHOP: '/shop',
+  SHOP_PRODUCT: (slug: string) => `/shop/${slug}`,
+  CART: '/cart',
+  CHECKOUT: '/checkout',
+  ORDERS: '/orders',
+  ORDER_DETAIL: (id: string) => `/orders/${id}`,
+  WISHLIST: '/wishlist',
 
   // ເສັ້ນທາງທີ່ຕ້ອງເຂົ້າສູ່ລະບົບ
   CHAT: '/chat',
@@ -48,6 +56,18 @@ export const ROUTES = {
   ADMIN_USERS: '/admin/users',
   ADMIN_BANNERS: '/admin/banners',
   ADMIN_SETTINGS: '/admin/settings',
+
+  // Inventory Management
+  ADMIN_CATEGORIES: '/admin/categories',
+  ADMIN_PRODUCTS: '/admin/products',
+  ADMIN_PRODUCT_NEW: '/admin/products/new',
+  ADMIN_PRODUCT_EDIT: (id: string) => `/admin/products/${id}/edit`,
+  ADMIN_ORDERS: '/admin/orders',
+  ADMIN_ORDER_DETAIL: (id: string) => `/admin/orders/${id}`,
+  ADMIN_STOCK: '/admin/stock',
+  ADMIN_COUPONS: '/admin/coupons',
+  ADMIN_REPORTS: '/admin/reports',
+  ADMIN_NOTIFICATIONS: '/admin/notifications',
 } as const;
 
 // ===========================================
@@ -130,8 +150,50 @@ export const DATE_FORMATS = {
 export const CLOUDINARY_FOLDERS = {
   USERS: 'full-stack-starter/users',
   PRODUCTS: 'full-stack-starter/products',
+  CATEGORIES: 'full-stack-starter/categories',
   BANNERS: 'full-stack-starter/banners',
   RESUMES: 'full-stack-starter/resumes',
+} as const;
+
+// ===========================================
+// ສະຖານະການສັ່ງຊື້
+// ===========================================
+
+export const ORDER_STATUS = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+} as const;
+
+export const ORDER_STATUS_LABELS = {
+  PENDING: 'ລໍຖ້າ',
+  PROCESSING: 'ກຳລັງດຳເນີນການ',
+  COMPLETED: 'ສຳເລັດ',
+  CANCELLED: 'ຍົກເລີກ',
+} as const;
+
+export const ORDER_STATUS_COLORS = {
+  PENDING: 'gold',
+  PROCESSING: 'blue',
+  COMPLETED: 'green',
+  CANCELLED: 'red',
+} as const;
+
+// ===========================================
+// ສະຖານະສິນຄ້າ
+// ===========================================
+
+export const STOCK_STATUS = {
+  IN_STOCK: 'IN_STOCK',
+  LOW_STOCK: 'LOW_STOCK',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+} as const;
+
+export const STOCK_STATUS_LABELS = {
+  IN_STOCK: 'ມີສິນຄ້າ',
+  LOW_STOCK: 'ສິນຄ້າໃກ້ໝົດ',
+  OUT_OF_STOCK: 'ສິນຄ້າໝົດ',
 } as const;
 
 export type CloudinaryFolder =

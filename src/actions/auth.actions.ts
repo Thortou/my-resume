@@ -1,6 +1,6 @@
 'use server';
 
-import { signIn, signOut, auth } from '@/lib/auth';
+import { signIn, signOut } from '@/lib/auth';
 import {
   loginSchema,
   registerSchema,
@@ -11,6 +11,7 @@ import type { ActionState } from '@/types';
 import { AuthError } from 'next-auth';
 import { userService } from '@/services';
 import type { Role } from '@prisma/client';
+import prisma from '@/lib/prisma';
 
 // Login action
 export async function loginAction(
@@ -33,20 +34,29 @@ export async function loginAction(
   const { email, password } = validatedFields.data;
 
   try {
+    // Get user role from database BEFORE signIn (since session may not be available immediately)
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { role: true },
+    });
+
+    if (!user) {
+      return {
+        success: false,
+        error: 'Invalid email or password',
+      };
+    }
+
     await signIn('credentials', {
       email,
       password,
       redirect: false,
     });
 
-    // Get the session to return the role
-    const session = await auth();
-    const role = session?.user?.role as Role;
-
     return {
       success: true,
       message: 'Login successful',
-      data: { role },
+      data: { role: user.role },
     };
   } catch (error) {
     if (error instanceof AuthError) {

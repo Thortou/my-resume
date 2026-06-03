@@ -39,7 +39,7 @@ export function ProfessionalTemplate({
             {/* Contact Section */}
             <div className="mb-6">
               <h3 className="mb-3 border-b border-slate-500 pb-1 text-sm font-semibold uppercase tracking-wider text-slate-300">
-                Contact
+                ຂໍ້ມູນຕິດຕໍ່
               </h3>
               <div className="space-y-2 text-sm">
                 {data.email && (
@@ -92,7 +92,7 @@ export function ProfessionalTemplate({
             {data.skills.length > 0 && (
               <div className="mb-6">
                 <h3 className="mb-3 border-b border-slate-500 pb-1 text-sm font-semibold uppercase tracking-wider text-slate-300">
-                  Skills
+                  ທັກສະ
                 </h3>
                 <div className="flex flex-wrap gap-1.5">
                   {data.skills.map((skill, index) => (
@@ -111,7 +111,7 @@ export function ProfessionalTemplate({
             {data.languages.length > 0 && (
               <div className="mb-6">
                 <h3 className="mb-3 border-b border-slate-500 pb-1 text-sm font-semibold uppercase tracking-wider text-slate-300">
-                  Languages
+                  ພາສາ
                 </h3>
                 <div className="space-y-2 text-sm">
                   {data.languages.map((lang, index) => (
@@ -141,7 +141,7 @@ export function ProfessionalTemplate({
             {data.objective && (
               <div className="resume-section mb-6">
                 <h2 className="mb-2 border-b border-slate-200 pb-1 text-base font-semibold uppercase tracking-wider text-slate-700">
-                  Career Objective
+                  ຈຸດປະສົງ
                 </h2>
                 <p className="whitespace-pre-line text-sm leading-relaxed text-slate-600">
                   {data.objective}
@@ -153,7 +153,7 @@ export function ProfessionalTemplate({
             {data.experience.length > 0 && (
               <div className="resume-section mb-6">
                 <h2 className="mb-3 border-b border-slate-200 pb-1 text-base font-semibold uppercase tracking-wider text-slate-700">
-                  Work Experience
+                  ປະສົບການ
                 </h2>
                 <div className="space-y-4">
                   {data.experience.map((exp, index) => (
@@ -186,7 +186,7 @@ export function ProfessionalTemplate({
             {data.education.length > 0 && (
               <div className="resume-section mb-6">
                 <h2 className="mb-3 border-b border-slate-200 pb-1 text-base font-semibold uppercase tracking-wider text-slate-700">
-                  Education
+                  ການສຶກສາ
                 </h2>
                 <div className="space-y-4">
                   {data.education.map((edu, index) => (

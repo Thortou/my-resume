@@ -10,8 +10,8 @@ import { APP_NAME, ROUTES } from '@/constants';
 
 const navLinks = [
   { href: ROUTES.HOME, label: 'ໜ້າຫຼັກ' },
+  { href: ROUTES.SHOP, label: 'ຮ້ານຄ້າ' },
   { href: ROUTES.ABOUT, label: 'ກ່ຽວກັບ' },
-  { href: ROUTES.PRODUCTS, label: 'ຜະລິດຕະພັນ' },
   { href: ROUTES.CONTACT, label: 'ຕິດຕໍ່' },
 ];
 

@@ -1,0 +1,275 @@
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
+import { Card, Tag, Descriptions, Table, Button, Divider, Steps } from 'antd';
+import {
+  ArrowLeftOutlined,
+  ClockCircleOutlined,
+  SyncOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+} from '@ant-design/icons';
+import { ROUTES, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from '@/constants';
+import { getOrderByIdAction } from '@/actions/order.actions';
+
+export const metadata: Metadata = {
+  title: 'ລາຍລະອຽດຄຳສັ່ງຊື້',
+};
+
+interface OrderDetailPageProps {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
+export default async function OrderDetailPage({
+  params,
+}: OrderDetailPageProps) {
+  const { id } = await params;
+  const order = await getOrderByIdAction(id);
+
+  if (!order) {
+    notFound();
+  }
+
+  // Determine current step
+  const getStepStatus = () => {
+    switch (order.status) {
+      case 'PENDING':
+        return 0;
+      case 'PROCESSING':
+        return 1;
+      case 'COMPLETED':
+        return 2;
+      case 'CANCELLED':
+        return -1;
+      default:
+        return 0;
+    }
+  };
+
+  const currentStep = getStepStatus();
+  const isCancelled = order.status === 'CANCELLED';
+
+  const columns = [
+    {
+      title: 'ສິນຄ້າ',
+      key: 'product',
+      render: (_: any, record: any) => (
+        <div className="flex items-center gap-3">
+          {record.product?.thumbnail && (
+            <Image
+              src={record.product.thumbnail}
+              alt={record.productName}
+              width={48}
+              height={48}
+              className="rounded"
+            />
+          )}
+          <div>
+            <p className="font-medium">{record.productName}</p>
+            <p className="text-sm text-gray-500">{record.productSku || '-'}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: 'ລາຄາ',
+      dataIndex: 'price',
+      key: 'price',
+      render: (price: number) => `${Number(price).toLocaleString()} ₭`,
+    },
+    {
+      title: 'ຈຳນວນ',
+      dataIndex: 'quantity',
+      key: 'quantity',
+    },
+    {
+      title: 'ລວມ',
+      dataIndex: 'total',
+      key: 'total',
+      render: (total: number) => (
+        <span className="font-medium">{Number(total).toLocaleString()} ₭</span>
+      ),
+    },
+  ];
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">ຄຳສັ່ງຊື້ #{order.orderNumber}</h1>
+          <p className="text-gray-500">
+            {new Date(order.createdAt).toLocaleDateString('lo-LA', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </p>
+        </div>
+        <Link href={ROUTES.ORDERS}>
+          <Button icon={<ArrowLeftOutlined />}>ກັບຄືນ</Button>
+        </Link>
+      </div>
+
+      {/* Order Status Steps */}
+      {!isCancelled ? (
+        <Card className="mb-6">
+          <Steps
+            current={currentStep}
+            items={[
+              {
+                title: 'ລໍຖ້າ',
+                icon: <ClockCircleOutlined />,
+              },
+              {
+                title: 'ກຳລັງດຳເນີນການ',
+                icon: <SyncOutlined />,
+              },
+              {
+                title: 'ສຳເລັດ',
+                icon: <CheckCircleOutlined />,
+              },
+            ]}
+          />
+        </Card>
+      ) : (
+        <Card className="mb-6 bg-red-50">
+          <div className="flex items-center gap-3 text-red-500">
+            <CloseCircleOutlined className="text-2xl" />
+            <div>
+              <p className="font-medium">ຄຳສັ່ງຊື້ນີ້ຖືກຍົກເລີກແລ້ວ</p>
+              {order.cancelledAt && (
+                <p className="text-sm">
+                  ວັນທີ:{' '}
+                  {new Date(order.cancelledAt).toLocaleDateString('lo-LA')}
+                </p>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Order Items */}
+        <div className="lg:col-span-2">
+          <Card title="ລາຍການສິນຄ້າ">
+            <Table
+              columns={columns}
+              dataSource={order.items}
+              rowKey="id"
+              pagination={false}
+              summary={() => (
+                <>
+                  <Table.Summary.Row>
+                    <Table.Summary.Cell
+                      index={0}
+                      colSpan={3}
+                      className="text-right"
+                    >
+                      ລວມຍ່ອຍ:
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={1}>
+                      {Number(order.subtotal).toLocaleString()} ₭
+                    </Table.Summary.Cell>
+                  </Table.Summary.Row>
+                  {Number(order.discount) > 0 && (
+                    <Table.Summary.Row>
+                      <Table.Summary.Cell
+                        index={0}
+                        colSpan={3}
+                        className="text-right"
+                      >
+                        ສ່ວນຫຼຸດ ({order.couponCode}):
+                      </Table.Summary.Cell>
+                      <Table.Summary.Cell index={1} className="text-green-500">
+                        -{Number(order.discount).toLocaleString()} ₭
+                      </Table.Summary.Cell>
+                    </Table.Summary.Row>
+                  )}
+                  <Table.Summary.Row>
+                    <Table.Summary.Cell
+                      index={0}
+                      colSpan={3}
+                      className="text-right font-bold"
+                    >
+                      ລວມທັງໝົດ:
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={1} className="text-lg font-bold">
+                      {Number(order.total).toLocaleString()} ₭
+                    </Table.Summary.Cell>
+                  </Table.Summary.Row>
+                </>
+              )}
+            />
+          </Card>
+        </div>
+
+        {/* Order Info */}
+        <div className="space-y-6">
+          <Card title="ຂໍ້ມູນການສັ່ງຊື້">
+            <Descriptions column={1} size="small">
+              <Descriptions.Item label="ເລກທີ່">
+                {order.orderNumber}
+              </Descriptions.Item>
+              <Descriptions.Item label="ສະຖານະ">
+                <Tag
+                  color={
+                    ORDER_STATUS_COLORS[
+                      order.status as keyof typeof ORDER_STATUS_COLORS
+                    ]
+                  }
+                >
+                  {
+                    ORDER_STATUS_LABELS[
+                      order.status as keyof typeof ORDER_STATUS_LABELS
+                    ]
+                  }
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="ວັນທີສັ່ງ">
+                {new Date(order.createdAt).toLocaleDateString('lo-LA')}
+              </Descriptions.Item>
+              {order.completedAt && (
+                <Descriptions.Item label="ວັນທີສຳເລັດ">
+                  {new Date(order.completedAt).toLocaleDateString('lo-LA')}
+                </Descriptions.Item>
+              )}
+            </Descriptions>
+          </Card>
+
+          <Card title="ຂໍ້ມູນການຈັດສົ່ງ">
+            <Descriptions column={1} size="small">
+              <Descriptions.Item label="ຊື່">
+                {order.customerName}
+              </Descriptions.Item>
+              <Descriptions.Item label="ອີເມວ">
+                {order.customerEmail}
+              </Descriptions.Item>
+              {order.customerPhone && (
+                <Descriptions.Item label="ເບີໂທ">
+                  {order.customerPhone}
+                </Descriptions.Item>
+              )}
+              {order.shippingAddress && (
+                <Descriptions.Item label="ທີ່ຢູ່">
+                  {order.shippingAddress}
+                </Descriptions.Item>
+              )}
+            </Descriptions>
+          </Card>
+
+          {order.notes && (
+            <Card title="ໝາຍເຫດ">
+              <p>{order.notes}</p>
+            </Card>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

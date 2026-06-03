@@ -62,6 +62,8 @@ export interface ResumeTemplate {
   name: string;
   thumbnail: string;
   component: React.ComponentType<ResumeTemplateProps>;
+  isPro?: boolean;
+  price?: string;
 }
 
 // Form input types

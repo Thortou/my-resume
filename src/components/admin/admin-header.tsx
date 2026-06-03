@@ -1,7 +1,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Layout, Button, Dropdown, Avatar, Space, Typography } from 'antd';
+import {
+  Layout,
+  Button,
+  Dropdown,
+  Avatar,
+  Space,
+  Typography,
+  Divider,
+} from 'antd';
 import type { MenuProps } from 'antd';
 import {
   MenuFoldOutlined,
@@ -13,6 +21,7 @@ import { useSession } from 'next-auth/react';
 import { logoutAction } from '@/actions';
 import { getInitials } from '@/lib/utils';
 import { ROUTES } from '@/constants';
+import { NotificationDropdown } from './notification-dropdown';
 
 const { Header } = Layout;
 const { Text } = Typography;
@@ -62,27 +71,31 @@ export function AdminHeader({ collapsed, onToggle }: AdminHeaderProps) {
         className="h-10 w-10"
       />
 
-      <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-        <Space className="cursor-pointer">
-          <Avatar
-            icon={<UserOutlined />}
-            src={session?.user?.image}
-            className="bg-primary-500"
-          >
-            {session?.user?.name
-              ? getInitials(session.user.name)
-              : session?.user?.email?.[0].toUpperCase()}
-          </Avatar>
-          <div className="hidden sm:block">
-            <Text strong className="block text-sm">
-              {session?.user?.name || 'ຜູ້ໃຊ້'}
-            </Text>
-            <Text type="secondary" className="block text-xs">
-              {session?.user?.email}
-            </Text>
-          </div>
-        </Space>
-      </Dropdown>
+      <Space size="middle">
+        <NotificationDropdown />
+        <Divider type="vertical" className="h-6 bg-gray-200" />
+        <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+          <Space className="cursor-pointer">
+            <Avatar
+              icon={<UserOutlined />}
+              src={session?.user?.image}
+              className="bg-primary-500"
+            >
+              {session?.user?.name
+                ? getInitials(session.user.name)
+                : session?.user?.email?.[0].toUpperCase()}
+            </Avatar>
+            <div className="hidden sm:block">
+              <Text strong className="block text-sm">
+                {session?.user?.name || 'ຜູ້ໃຊ້'}
+              </Text>
+              <Text type="secondary" className="block text-xs">
+                {session?.user?.email}
+              </Text>
+            </div>
+          </Space>
+        </Dropdown>
+      </Space>
     </Header>
   );
 }

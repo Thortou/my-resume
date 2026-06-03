@@ -20,15 +20,16 @@ export function HeroSection() {
 
           {/* ລາຍລະອຽດ */}
           <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-            ແມ່ແບບເລີ່ມຕົ້ນ full-stack ທີ່ຂະຫຍາຍໄດ້ ພ້ອມ Next.js, TypeScript, Prisma
-            ແລະ ອື່ນໆ. ທຸກຢ່າງທີ່ທ່ານຕ້ອງການເພື່ອສ້າງແອັບພລິເຄຊັນລະດັບອົງກອນ
+            ແມ່ແບບເລີ່ມຕົ້ນ full-stack ທີ່ຂະຫຍາຍໄດ້ ພ້ອມ Next.js, TypeScript,
+            Prisma ແລະ ອື່ນໆ.
+            ທຸກຢ່າງທີ່ທ່ານຕ້ອງການເພື່ອສ້າງແອັບພລິເຄຊັນລະດັບອົງກອນ
             ດ້ວຍສະຖາປັດຕະຍະກຳທີ່ສະອາດ.
           </p>
 
           {/* ປຸ່ມ CTA */}
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
-              href={ROUTES.PRODUCTS}
+              href={ROUTES.SHOP}
               className="inline-flex items-center rounded-lg bg-primary-600 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-primary-700"
             >
               ເລີ່ມຕົ້ນ

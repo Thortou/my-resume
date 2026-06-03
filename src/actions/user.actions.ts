@@ -12,6 +12,12 @@ import {
 import type { ActionState } from '@/types';
 import { getCurrentUser } from '@/lib/auth';
 
+// Get current logged in user action
+export async function getCurrentUserAction() {
+  const user = await getCurrentUser();
+  return user;
+}
+
 // Helper to check admin access
 async function checkAdminAccess(): Promise<ActionState | null> {
   const currentUser = await getCurrentUser();
@@ -41,7 +47,15 @@ export async function getUsersAction(params: {
   role?: Role;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
-}): Promise<ActionState<{ users: User[]; total: number; page: number; limit: number; totalPages: number }>> {
+}): Promise<
+  ActionState<{
+    users: User[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }>
+> {
   const accessError = await checkAdminAccess();
   if (accessError) return accessError as ActionState<never>;
 

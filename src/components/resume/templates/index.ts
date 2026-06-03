@@ -4,6 +4,8 @@ import { ModernTemplate } from './ModernTemplate';
 import { CreativeTemplate } from './CreativeTemplate';
 import { ATSFriendlyTemplate } from './ATSFriendlyTemplate';
 import { MinimalTemplate } from './MinimalTemplate';
+import { ProTemplate } from './ProTemplate';
+import { ExecutiveProTemplate } from './ExecutiveProTemplate';
 
 // Template registry - add new templates here
 export const RESUME_TEMPLATES: ResumeTemplate[] = [
@@ -37,6 +39,22 @@ export const RESUME_TEMPLATES: ResumeTemplate[] = [
     thumbnail: '/templates/ats-friendly.png',
     component: ATSFriendlyTemplate,
   },
+  {
+    id: 'pro',
+    name: 'Pro',
+    thumbnail: '/templates/pro.png',
+    component: ProTemplate,
+    isPro: true,
+    price: '50,000 ກີບ',
+  },
+  {
+    id: 'executive-pro',
+    name: 'Executive',
+    thumbnail: '/templates/executive-pro.png',
+    component: ExecutiveProTemplate,
+    isPro: true,
+    price: '50,000 ກີບ',
+  },
 ];
 
 // Get template by ID
@@ -55,4 +73,6 @@ export {
   CreativeTemplate,
   ATSFriendlyTemplate,
   MinimalTemplate,
+  ProTemplate,
+  ExecutiveProTemplate,
 };

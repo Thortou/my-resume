@@ -1,7 +1,7 @@
 'use client';
 
 import '@/lib/suppress-warnings';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Form,
   Input,
@@ -13,6 +13,7 @@ import {
   Divider,
   Upload,
   App,
+  Tag,
 } from 'antd';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,6 +28,8 @@ import {
   EnvironmentOutlined,
   GlobalOutlined,
   LinkedinOutlined,
+  CrownOutlined,
+  LockOutlined,
 } from '@ant-design/icons';
 import {
   createResumeSchema,
@@ -40,10 +43,12 @@ import type {
   LanguageEntry,
 } from '@/types/resume';
 import { uploadImageAction } from '@/actions/upload.actions';
+import { checkProTemplateAccessAction } from '@/actions/payment.actions';
 import { CLOUDINARY_FOLDERS } from '@/constants';
 import type { CloudinaryFolder } from '@/constants';
 import Image from 'next/image';
 import { RESUME_TEMPLATES } from './templates';
+import { PaymentModal } from './PaymentModal';
 
 const { TextArea } = Input;
 const { Panel } = Collapse;
@@ -75,8 +80,25 @@ export function ResumeForm({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [skillInput, setSkillInput] = useState('');
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [hasProAccess, setHasProAccess] = useState(false);
+  const [checkingAccess, setCheckingAccess] = useState(true);
 
   const isEditMode = !!initialData;
+
+  // Check if user has pro template access
+  const checkProAccess = useCallback(async () => {
+    setCheckingAccess(true);
+    const result = await checkProTemplateAccessAction();
+    if (result.success && result.data) {
+      setHasProAccess(result.data.hasAccess);
+    }
+    setCheckingAccess(false);
+  }, []);
+
+  useEffect(() => {
+    checkProAccess();
+  }, [checkProAccess]);
 
   const {
     control,
@@ -236,81 +258,170 @@ export function ResumeForm({
             name="templateId"
             control={control}
             render={({ field }) => (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-                {RESUME_TEMPLATES.map((template) => (
-                  <div
-                    key={template.id}
-                    onClick={() => field.onChange(template.id)}
-                    className={`cursor-pointer rounded-lg border-2 p-3 transition-all hover:shadow-md ${
-                      field.value === template.id
-                        ? 'border-blue-500 bg-blue-50 shadow-md'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="mb-2 flex aspect-[3/4] items-center justify-center overflow-hidden rounded bg-gray-100 text-xs text-gray-400">
-                      {template.id === 'professional' && (
-                        <div className="flex h-full w-full bg-gradient-to-r from-slate-600 to-slate-700">
-                          <div className="w-1/3 bg-slate-700"></div>
-                          <div className="flex-1 bg-white p-1">
-                            <div className="mb-1 h-2 w-full bg-slate-200"></div>
-                            <div className="h-1 w-3/4 bg-slate-100"></div>
-                          </div>
-                        </div>
-                      )}
-                      {template.id === 'modern' && (
-                        <div className="flex h-full w-full flex-col">
-                          <div className="h-1/4 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
-                          <div className="flex-1 bg-white p-1">
-                            <div className="mb-1 h-1 w-full bg-indigo-100"></div>
-                            <div className="h-1 w-2/3 bg-gray-100"></div>
-                          </div>
-                        </div>
-                      )}
-                      {template.id === 'creative' && (
-                        <div className="flex h-full w-full flex-col">
-                          <div className="relative h-1/3 bg-gradient-to-br from-rose-500 to-orange-400">
-                            <div className="absolute bottom-0 left-1/2 h-6 w-6 -translate-x-1/2 translate-y-1/2 rounded-full border-2 border-rose-200 bg-white"></div>
-                          </div>
-                          <div className="flex-1 bg-white p-1 pt-4">
-                            <div className="mx-auto mb-1 h-1 w-2/3 bg-rose-100"></div>
-                            <div className="mx-auto h-1 w-1/2 bg-gray-100"></div>
-                          </div>
-                        </div>
-                      )}
-                      {template.id === 'minimal' && (
-                        <div className="flex h-full w-full flex-col bg-white p-2">
-                          <div className="mb-1 h-2 w-3/4 bg-gray-200"></div>
-                          <div className="mb-2 h-1 w-1/2 bg-gray-100"></div>
-                          <div className="border-t border-gray-200 pt-1">
-                            <div className="mb-1 h-1 w-full bg-gray-50"></div>
-                            <div className="h-1 w-2/3 bg-gray-50"></div>
-                          </div>
-                        </div>
-                      )}
-                      {template.id === 'ats-friendly' && (
-                        <div className="flex h-full w-full flex-col items-center bg-white p-2">
-                          <div className="mb-1 h-2 w-3/4 bg-gray-800"></div>
-                          <div className="mb-1 h-1 w-1/2 bg-gray-400"></div>
-                          <div className="mt-1 w-full border-t border-gray-300 pt-1">
-                            <div className="mb-1 h-1 w-full bg-gray-200"></div>
-                            <div className="h-1 w-full bg-gray-100"></div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <p
-                      className={`text-center text-sm font-medium ${
-                        field.value === template.id
-                          ? 'text-blue-600'
-                          : 'text-gray-700'
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                {RESUME_TEMPLATES.map((template) => {
+                  const isPro = template.isPro;
+                  const isLocked = isPro && !hasProAccess;
+                  const isSelected = field.value === template.id;
+
+                  const handleClick = () => {
+                    if (isLocked) {
+                      setPaymentModalOpen(true);
+                    } else {
+                      field.onChange(template.id);
+                    }
+                  };
+
+                  return (
+                    <div
+                      key={template.id}
+                      onClick={handleClick}
+                      className={`relative cursor-pointer rounded-lg border-2 p-3 transition-all hover:shadow-md ${
+                        isSelected
+                          ? 'border-blue-500 bg-blue-50 shadow-md'
+                          : isLocked
+                            ? 'border-amber-300 bg-amber-50 hover:border-amber-400'
+                            : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
-                      {template.name}
-                    </p>
-                  </div>
-                ))}
+                      {/* Pro Badge */}
+                      {isPro && (
+                        <div className="absolute -right-1 -top-1 z-10">
+                          <Tag
+                            color="gold"
+                            className="flex items-center gap-1 px-1.5 py-0 text-[10px] font-bold"
+                          >
+                            <CrownOutlined />
+                            PRO
+                          </Tag>
+                        </div>
+                      )}
+
+                      {/* Lock Overlay */}
+                      {isLocked && (
+                        <div className="absolute inset-0 z-[5] flex items-center justify-center rounded-lg bg-black/10">
+                          <div className="rounded-full bg-white p-2 shadow-lg">
+                            <LockOutlined className="text-lg text-amber-500" />
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="mb-2 flex aspect-[3/4] items-center justify-center overflow-hidden rounded bg-gray-100 text-xs text-gray-400">
+                        {template.id === 'professional' && (
+                          <div className="flex h-full w-full bg-gradient-to-r from-slate-600 to-slate-700">
+                            <div className="w-1/3 bg-slate-700"></div>
+                            <div className="flex-1 bg-white p-1">
+                              <div className="mb-1 h-2 w-full bg-slate-200"></div>
+                              <div className="h-1 w-3/4 bg-slate-100"></div>
+                            </div>
+                          </div>
+                        )}
+                        {template.id === 'modern' && (
+                          <div className="flex h-full w-full flex-col">
+                            <div className="h-1/4 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+                            <div className="flex-1 bg-white p-1">
+                              <div className="mb-1 h-1 w-full bg-indigo-100"></div>
+                              <div className="h-1 w-2/3 bg-gray-100"></div>
+                            </div>
+                          </div>
+                        )}
+                        {template.id === 'creative' && (
+                          <div className="flex h-full w-full flex-col">
+                            <div className="relative h-1/3 bg-gradient-to-br from-rose-500 to-orange-400">
+                              <div className="absolute bottom-0 left-1/2 h-6 w-6 -translate-x-1/2 translate-y-1/2 rounded-full border-2 border-rose-200 bg-white"></div>
+                            </div>
+                            <div className="flex-1 bg-white p-1 pt-4">
+                              <div className="mx-auto mb-1 h-1 w-2/3 bg-rose-100"></div>
+                              <div className="mx-auto h-1 w-1/2 bg-gray-100"></div>
+                            </div>
+                          </div>
+                        )}
+                        {template.id === 'minimal' && (
+                          <div className="flex h-full w-full flex-col bg-white p-2">
+                            <div className="mb-1 h-2 w-3/4 bg-gray-200"></div>
+                            <div className="mb-2 h-1 w-1/2 bg-gray-100"></div>
+                            <div className="border-t border-gray-200 pt-1">
+                              <div className="mb-1 h-1 w-full bg-gray-50"></div>
+                              <div className="h-1 w-2/3 bg-gray-50"></div>
+                            </div>
+                          </div>
+                        )}
+                        {template.id === 'ats-friendly' && (
+                          <div className="flex h-full w-full flex-col items-center bg-white p-2">
+                            <div className="mb-1 h-2 w-3/4 bg-gray-800"></div>
+                            <div className="mb-1 h-1 w-1/2 bg-gray-400"></div>
+                            <div className="mt-1 w-full border-t border-gray-300 pt-1">
+                              <div className="mb-1 h-1 w-full bg-gray-200"></div>
+                              <div className="h-1 w-full bg-gray-100"></div>
+                            </div>
+                          </div>
+                        )}
+                        {template.id === 'pro' && (
+                          <div className="flex h-full w-full flex-col">
+                            <div className="h-1/4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500"></div>
+                            <div className="flex flex-1">
+                              <div className="flex-1 bg-white p-1">
+                                <div className="mb-1 h-1 w-full bg-indigo-100"></div>
+                                <div className="h-1 w-2/3 bg-gray-100"></div>
+                              </div>
+                              <div className="w-1/4 bg-gray-50"></div>
+                            </div>
+                          </div>
+                        )}
+                        {template.id === 'executive-pro' && (
+                          <div className="flex h-full w-full">
+                            <div className="w-[32%] bg-[#E5E5E5] p-1">
+                              <div className="mx-auto mb-1 aspect-square w-3/4 bg-[#071B2A]"></div>
+                              <div className="mb-0.5 h-0.5 w-full bg-gray-400"></div>
+                              <div className="h-0.5 w-2/3 bg-gray-300"></div>
+                            </div>
+                            <div className="flex w-[68%] flex-col">
+                              <div className="h-1/5 bg-[#071B2A]"></div>
+                              <div className="flex-1 bg-white p-1">
+                                <div className="mb-0.5 h-0.5 w-full bg-gray-200"></div>
+                                <div className="h-0.5 w-2/3 bg-gray-100"></div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-center">
+                        <p
+                          className={`text-sm font-medium ${
+                            isSelected
+                              ? 'text-blue-600'
+                              : isPro
+                                ? 'text-amber-700'
+                                : 'text-gray-700'
+                          }`}
+                        >
+                          {template.name}
+                        </p>
+                        {isPro && (
+                          <p className="text-[10px] text-amber-600">
+                            {hasProAccess ? 'ປົດລັອກແລ້ວ' : template.price}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
+          />
+
+          {/* Payment Modal */}
+          <PaymentModal
+            open={paymentModalOpen}
+            onClose={() => setPaymentModalOpen(false)}
+            onSuccess={() => {
+              setHasProAccess(true);
+              setPaymentModalOpen(false);
+              message.success(
+                'ຊື້ Pro Template ສຳເລັດ! ທ່ານສາມາດໃຊ້ Pro Template ໄດ້ແລ້ວ'
+              );
+            }}
+            templateName="Pro Template"
           />
         </Panel>
 
