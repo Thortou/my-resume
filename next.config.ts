@@ -26,6 +26,9 @@ const nextConfig: NextConfig = {
   // Transpile Ant Design for proper SSR
   transpilePackages: ['antd', '@ant-design/icons'],
 
+  // Externalize heavy packages to reduce bundle size
+  serverExternalPackages: ['@prisma/client', 'bcryptjs'],
+
   // Experimental features
   experimental: {
     // Enable server actions (enabled by default in Next.js 15)

@@ -77,6 +77,9 @@ export default auth((req) => {
   return NextResponse.next();
 });
 
+// Use Node.js runtime to avoid Edge Function 1MB size limit
+export const runtime = 'nodejs';
+
 export const config = {
   // Match all routes except static files and API routes
   matcher: [
