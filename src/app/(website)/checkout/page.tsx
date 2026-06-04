@@ -14,8 +14,14 @@ import {
   Spin,
   message,
   Result,
+  Collapse,
 } from 'antd';
-import { ShoppingOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import {
+  ShoppingOutlined,
+  CheckCircleOutlined,
+  ShoppingCartOutlined,
+  ArrowLeftOutlined,
+} from '@ant-design/icons';
 import { ROUTES } from '@/constants';
 import { getCartAction, validateCartAction } from '@/actions/cart.actions';
 import { checkoutAction } from '@/actions/order.actions';
@@ -137,6 +143,8 @@ export default function CheckoutPage() {
         const data = result.data as { orderNumber: string };
         setOrderNumber(data.orderNumber);
         setOrderComplete(true);
+        // Update cart indicator
+        window.dispatchEvent(new CustomEvent('cart-updated'));
       } else {
         message.error(result.error);
       }
@@ -157,27 +165,33 @@ export default function CheckoutPage() {
 
   if (orderComplete) {
     return (
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-8 sm:py-12">
         <Result
           status="success"
           icon={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
           title="ສັ່ງຊື້ສຳເລັດແລ້ວ!"
           subTitle={
-            <div>
+            <div className="text-center">
               <p>
                 ເລກທີ່ຄຳສັ່ງຊື້: <strong>{orderNumber}</strong>
               </p>
               <p className="mt-2">ຂອບໃຈທີ່ໃຊ້ບໍລິການ</p>
             </div>
           }
-          extra={[
-            <Link href={ROUTES.ORDERS} key="orders">
-              <Button type="primary">ເບິ່ງຄຳສັ່ງຊື້ຂອງຂ້ອຍ</Button>
-            </Link>,
-            <Link href={ROUTES.SHOP} key="shop">
-              <Button>ຊ້ອບປິ້ງຕໍ່</Button>
-            </Link>,
-          ]}
+          extra={
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <Link href={ROUTES.ORDERS}>
+                <Button type="primary" block className="sm:w-auto">
+                  ເບິ່ງຄຳສັ່ງຊື້ຂອງຂ້ອຍ
+                </Button>
+              </Link>
+              <Link href={ROUTES.SHOP}>
+                <Button block className="sm:w-auto">
+                  ຊ້ອບປິ້ງຕໍ່
+                </Button>
+              </Link>
+            </div>
+          }
         />
       </div>
     );
@@ -199,14 +213,135 @@ export default function CheckoutPage() {
 
   const total = cart.subtotal - discount;
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold">ຊຳລະເງິນ</h1>
+  // Order Summary Component (reusable for mobile and desktop)
+  const OrderSummaryContent = () => (
+    <>
+      {/* Items */}
+      <div className="space-y-3">
+        {cart.items.map((item) => (
+          <div key={item.id} className="flex items-center gap-3 text-sm">
+            <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded bg-gray-100">
+              {item.product.thumbnail ? (
+                <Image
+                  src={item.product.thumbnail}
+                  alt={item.product.name}
+                  width={48}
+                  height={48}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
+                  No Image
+                </div>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium">{item.product.name}</p>
+              <p className="text-gray-500">x{item.quantity}</p>
+            </div>
+            <span className="flex-shrink-0 font-medium">
+              {item.itemTotal.toLocaleString()} ₭
+            </span>
+          </div>
+        ))}
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <Divider className="my-4" />
+
+      {/* Coupon */}
+      <div className="mb-4">
+        <p className="mb-2 text-sm font-medium text-gray-600">ລະຫັດສ່ວນຫຼຸດ</p>
+        <div className="flex gap-2">
+          <Input
+            placeholder="ໃສ່ລະຫັດ"
+            value={couponCode}
+            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+            disabled={discount > 0}
+            className="flex-1"
+          />
+          {discount > 0 ? (
+            <Button
+              danger
+              onClick={() => {
+                setCouponCode('');
+                setDiscount(0);
+              }}
+            >
+              ລຶບ
+            </Button>
+          ) : (
+            <Button onClick={handleApplyCoupon} loading={applyingCoupon}>
+              ໃຊ້
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Totals */}
+      <div className="space-y-2">
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">ລວມຍ່ອຍ</span>
+          <span>{cart.subtotal.toLocaleString()} ₭</span>
+        </div>
+        {discount > 0 && (
+          <div className="flex justify-between text-sm text-green-600">
+            <span>ສ່ວນຫຼຸດ</span>
+            <span>-{discount.toLocaleString()} ₭</span>
+          </div>
+        )}
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">ຄ່າສົ່ງ</span>
+          <span className="text-green-600">ຟຣີ</span>
+        </div>
+        <Divider className="my-2" />
+        <div className="flex justify-between text-lg font-bold">
+          <span>ລວມທັງໝົດ</span>
+          <span className="text-primary-600">{total.toLocaleString()} ₭</span>
+        </div>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="container mx-auto px-4 py-4 sm:py-8">
+      {/* Header */}
+      <div className="mb-4 flex items-center gap-3 sm:mb-6">
+        <Link href={ROUTES.CART}>
+          <Button icon={<ArrowLeftOutlined />} className="sm:hidden" />
+          <Button icon={<ArrowLeftOutlined />} className="hidden sm:flex">
+            ກັບຄືນກະຕ່າ
+          </Button>
+        </Link>
+        <h1 className="text-xl font-bold sm:text-2xl">ຊຳລະເງິນ</h1>
+      </div>
+
+      {/* Mobile Order Summary (Collapsible) */}
+      <div className="mb-4 lg:hidden">
+        <Collapse
+          items={[
+            {
+              key: '1',
+              label: (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShoppingCartOutlined />
+                    <span>ສະຫຼຸບຄຳສັ່ງຊື້ ({cart.itemCount} ລາຍການ)</span>
+                  </div>
+                  <span className="font-bold text-primary-600">
+                    {total.toLocaleString()} ₭
+                  </span>
+                </div>
+              ),
+              children: <OrderSummaryContent />,
+            },
+          ]}
+        />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3 lg:gap-6">
         {/* Checkout Form */}
         <div className="lg:col-span-2">
-          <Card title="ຂໍ້ມູນການຈັດສົ່ງ">
+          <Card title="ຂໍ້ມູນການຈັດສົ່ງ" className="shadow-sm">
             <Form
               form={form}
               layout="vertical"
@@ -218,7 +353,7 @@ export default function CheckoutPage() {
                 label="ຊື່ເຕັມ"
                 rules={[{ required: true, message: 'ກະລຸນາໃສ່ຊື່' }]}
               >
-                <Input placeholder="ໃສ່ຊື່ເຕັມຂອງທ່ານ" />
+                <Input placeholder="ໃສ່ຊື່ເຕັມຂອງທ່ານ" size="large" />
               </Form.Item>
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -230,11 +365,11 @@ export default function CheckoutPage() {
                     { type: 'email', message: 'ອີເມວບໍ່ຖືກຕ້ອງ' },
                   ]}
                 >
-                  <Input placeholder="email@example.com" />
+                  <Input placeholder="email@example.com" size="large" />
                 </Form.Item>
 
                 <Form.Item name="customerPhone" label="ເບີໂທ">
-                  <Input placeholder="020 XXXX XXXX" />
+                  <Input placeholder="020 XXXX XXXX" size="large" />
                 </Form.Item>
               </div>
 
@@ -252,102 +387,48 @@ export default function CheckoutPage() {
                 />
               </Form.Item>
 
-              <Button
-                type="primary"
-                htmlType="submit"
-                size="large"
-                loading={submitting}
-                block
-              >
-                ຢືນຢັນການສັ່ງຊື້
-              </Button>
+              {/* Mobile Submit Button */}
+              <div className="lg:hidden">
+                <div className="mb-3 flex justify-between rounded-lg bg-gray-50 p-3">
+                  <span className="font-medium">ຍອດລວມທັງໝົດ</span>
+                  <span className="text-lg font-bold text-primary-600">
+                    {total.toLocaleString()} ₭
+                  </span>
+                </div>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  size="large"
+                  loading={submitting}
+                  block
+                >
+                  ຢືນຢັນການສັ່ງຊື້
+                </Button>
+              </div>
+
+              {/* Desktop Submit Button */}
+              <div className="hidden lg:block">
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  size="large"
+                  loading={submitting}
+                  block
+                >
+                  ຢືນຢັນການສັ່ງຊື້
+                </Button>
+              </div>
             </Form>
           </Card>
         </div>
 
-        {/* Order Summary */}
-        <div>
-          <Card title="ສະຫຼຸບຄຳສັ່ງຊື້">
-            {/* Items */}
-            <div className="space-y-3">
-              {cart.items.map((item) => (
-                <div key={item.id} className="flex items-center gap-3 text-sm">
-                  <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded bg-gray-100">
-                    {item.product.thumbnail ? (
-                      <Image
-                        src={item.product.thumbnail}
-                        alt={item.product.name}
-                        width={48}
-                        height={48}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
-                        No
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <p className="line-clamp-1">{item.product.name}</p>
-                    <p className="text-gray-500">x{item.quantity}</p>
-                  </div>
-                  <span>{item.itemTotal.toLocaleString()} ₭</span>
-                </div>
-              ))}
-            </div>
-
-            <Divider />
-
-            {/* Coupon */}
-            <div className="mb-4">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="ລະຫັດສ່ວນຫຼຸດ"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  disabled={discount > 0}
-                />
-                {discount > 0 ? (
-                  <Button
-                    danger
-                    onClick={() => {
-                      setCouponCode('');
-                      setDiscount(0);
-                    }}
-                  >
-                    ລຶບ
-                  </Button>
-                ) : (
-                  <Button onClick={handleApplyCoupon} loading={applyingCoupon}>
-                    ໃຊ້
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Totals */}
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span>ລວມຍ່ອຍ</span>
-                <span>{cart.subtotal.toLocaleString()} ₭</span>
-              </div>
-              {discount > 0 && (
-                <div className="flex justify-between text-green-500">
-                  <span>ສ່ວນຫຼຸດ</span>
-                  <span>-{discount.toLocaleString()} ₭</span>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <span>ຄ່າສົ່ງ</span>
-                <span className="text-green-500">ຟຣີ</span>
-              </div>
-              <Divider className="my-2" />
-              <div className="flex justify-between text-lg font-bold">
-                <span>ລວມທັງໝົດ</span>
-                <span>{total.toLocaleString()} ₭</span>
-              </div>
-            </div>
-          </Card>
+        {/* Desktop Order Summary */}
+        <div className="hidden lg:block">
+          <div className="sticky top-20">
+            <Card title="ສະຫຼຸບຄຳສັ່ງຊື້" className="shadow-sm">
+              <OrderSummaryContent />
+            </Card>
+          </div>
         </div>
       </div>
     </div>

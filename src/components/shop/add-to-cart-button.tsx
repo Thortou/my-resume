@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, InputNumber, Space, message } from 'antd';
+import { Button, InputNumber, message } from 'antd';
 import {
   ShoppingCartOutlined,
   MinusOutlined,
@@ -29,6 +29,8 @@ export function AddToCartButton({
       const result = await addToCartAction(productId, quantity);
       if (result.success) {
         message.success(result.message);
+        // Dispatch custom event to update cart indicator
+        window.dispatchEvent(new CustomEvent('cart-updated'));
       } else {
         message.error(result.error);
       }

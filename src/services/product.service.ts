@@ -5,13 +5,23 @@ import {
 import { stockService } from '@/services/stock.service';
 import type { ActionState } from '@/types';
 
-// Helper to generate slug from name
+// Helper to generate slug from name (URL-safe ASCII)
 function generateSlug(name: string): string {
-  return name
+  // Generate a unique slug using timestamp and random string for non-ASCII names
+  const asciiSlug = name
     .toLowerCase()
-    .replace(/[^a-z0-9\u0E80-\u0EFF]+/g, '-')
+    .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
-    .substring(0, 200);
+    .substring(0, 100);
+
+  // If slug is empty or too short (non-ASCII name), use a generated slug
+  if (!asciiSlug || asciiSlug.length < 3) {
+    const timestamp = Date.now().toString(36);
+    const random = Math.random().toString(36).substring(2, 6);
+    return `product-${timestamp}-${random}`;
+  }
+
+  return asciiSlug;
 }
 
 // Helper to ensure unique slug

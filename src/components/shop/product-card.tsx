@@ -59,6 +59,8 @@ export function ProductCard({
     const result = await addToCartAction(product.id, 1);
     if (result.success) {
       message.success(result.message);
+      // Update cart indicator
+      window.dispatchEvent(new CustomEvent('cart-updated'));
     } else {
       message.error(result.error);
     }

@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Card, Tag, Descriptions, Table, Button, Divider, Steps } from 'antd';
+import { Card, Tag, Descriptions, Button, Steps } from 'antd';
 import {
   ArrowLeftOutlined,
   ClockCircleOutlined,
@@ -12,6 +11,7 @@ import {
 } from '@ant-design/icons';
 import { ROUTES, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from '@/constants';
 import { getOrderByIdAction } from '@/actions/order.actions';
+import { OrderItemsTable } from '@/components/shop/order-items-table';
 
 export const metadata: Metadata = {
   title: 'ລາຍລະອຽດຄຳສັ່ງຊື້',
@@ -52,95 +52,78 @@ export default async function OrderDetailPage({
   const currentStep = getStepStatus();
   const isCancelled = order.status === 'CANCELLED';
 
-  const columns = [
-    {
-      title: 'ສິນຄ້າ',
-      key: 'product',
-      render: (_: any, record: any) => (
-        <div className="flex items-center gap-3">
-          {record.product?.thumbnail && (
-            <Image
-              src={record.product.thumbnail}
-              alt={record.productName}
-              width={48}
-              height={48}
-              className="rounded"
-            />
-          )}
-          <div>
-            <p className="font-medium">{record.productName}</p>
-            <p className="text-sm text-gray-500">{record.productSku || '-'}</p>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: 'ລາຄາ',
-      dataIndex: 'price',
-      key: 'price',
-      render: (price: number) => `${Number(price).toLocaleString()} ₭`,
-    },
-    {
-      title: 'ຈຳນວນ',
-      dataIndex: 'quantity',
-      key: 'quantity',
-    },
-    {
-      title: 'ລວມ',
-      dataIndex: 'total',
-      key: 'total',
-      render: (total: number) => (
-        <span className="font-medium">{Number(total).toLocaleString()} ₭</span>
-      ),
-    },
-  ];
-
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-4 sm:py-8">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">ຄຳສັ່ງຊື້ #{order.orderNumber}</h1>
-          <p className="text-gray-500">
-            {new Date(order.createdAt).toLocaleDateString('lo-LA', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </p>
+      <div className="mb-4 sm:mb-6">
+        <div className="mb-3 flex items-center gap-3">
+          <Link href={ROUTES.ORDERS}>
+            <Button icon={<ArrowLeftOutlined />} className="sm:hidden" />
+            <Button icon={<ArrowLeftOutlined />} className="hidden sm:flex">
+              ກັບຄືນ
+            </Button>
+          </Link>
+          <h1 className="text-lg font-bold sm:text-2xl">
+            ຄຳສັ່ງຊື້ #{order.orderNumber}
+          </h1>
         </div>
-        <Link href={ROUTES.ORDERS}>
-          <Button icon={<ArrowLeftOutlined />}>ກັບຄືນ</Button>
-        </Link>
+        <p className="text-sm text-gray-500 sm:text-base">
+          {new Date(order.createdAt).toLocaleDateString('lo-LA', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          })}
+        </p>
       </div>
 
       {/* Order Status Steps */}
       {!isCancelled ? (
-        <Card className="mb-6">
-          <Steps
-            current={currentStep}
-            items={[
+        <Card className="mb-4 sm:mb-6">
+          {/* Mobile Status - Simple Badge */}
+          <div className="flex items-center justify-between sm:hidden">
+            <span className="text-sm font-medium">ສະຖານະ:</span>
+            <Tag
+              color={
+                ORDER_STATUS_COLORS[
+                  order.status as keyof typeof ORDER_STATUS_COLORS
+                ]
+              }
+              className="m-0"
+            >
               {
-                title: 'ລໍຖ້າ',
-                icon: <ClockCircleOutlined />,
-              },
-              {
-                title: 'ກຳລັງດຳເນີນການ',
-                icon: <SyncOutlined />,
-              },
-              {
-                title: 'ສຳເລັດ',
-                icon: <CheckCircleOutlined />,
-              },
-            ]}
-          />
+                ORDER_STATUS_LABELS[
+                  order.status as keyof typeof ORDER_STATUS_LABELS
+                ]
+              }
+            </Tag>
+          </div>
+          {/* Desktop Status - Steps */}
+          <div className="hidden sm:block">
+            <Steps
+              current={currentStep}
+              items={[
+                {
+                  title: 'ລໍຖ້າ',
+                  icon: <ClockCircleOutlined />,
+                },
+                {
+                  title: 'ກຳລັງດຳເນີນການ',
+                  icon: <SyncOutlined />,
+                },
+                {
+                  title: 'ສຳເລັດ',
+                  icon: <CheckCircleOutlined />,
+                },
+              ]}
+            />
+          </div>
         </Card>
       ) : (
-        <Card className="mb-6 bg-red-50">
+        <Card className="mb-4 bg-red-50 sm:mb-6">
           <div className="flex items-center gap-3 text-red-500">
-            <CloseCircleOutlined className="text-2xl" />
+            <CloseCircleOutlined className="text-xl sm:text-2xl" />
             <div>
               <p className="font-medium">ຄຳສັ່ງຊື້ນີ້ຖືກຍົກເລີກແລ້ວ</p>
               {order.cancelledAt && (
@@ -154,65 +137,79 @@ export default async function OrderDetailPage({
         </Card>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      {/* Mobile Summary Card */}
+      <div className="mb-4 rounded-lg border bg-primary-50 p-4 sm:hidden">
+        <div className="flex items-center justify-between">
+          <span className="font-medium">ຍອດລວມທັງໝົດ</span>
+          <span className="text-xl font-bold text-primary-600">
+            {Number(order.total).toLocaleString()} ₭
+          </span>
+        </div>
+        {Number(order.discount) > 0 && (
+          <p className="mt-1 text-sm text-green-600">
+            ສ່ວນຫຼຸດ: -{Number(order.discount).toLocaleString()} ₭
+          </p>
+        )}
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3 lg:gap-6">
         {/* Order Items */}
-        <div className="lg:col-span-2">
-          <Card title="ລາຍການສິນຄ້າ">
-            <Table
-              columns={columns}
-              dataSource={order.items}
-              rowKey="id"
-              pagination={false}
-              summary={() => (
-                <>
-                  <Table.Summary.Row>
-                    <Table.Summary.Cell
-                      index={0}
-                      colSpan={3}
-                      className="text-right"
-                    >
-                      ລວມຍ່ອຍ:
-                    </Table.Summary.Cell>
-                    <Table.Summary.Cell index={1}>
-                      {Number(order.subtotal).toLocaleString()} ₭
-                    </Table.Summary.Cell>
-                  </Table.Summary.Row>
-                  {Number(order.discount) > 0 && (
-                    <Table.Summary.Row>
-                      <Table.Summary.Cell
-                        index={0}
-                        colSpan={3}
-                        className="text-right"
-                      >
-                        ສ່ວນຫຼຸດ ({order.couponCode}):
-                      </Table.Summary.Cell>
-                      <Table.Summary.Cell index={1} className="text-green-500">
-                        -{Number(order.discount).toLocaleString()} ₭
-                      </Table.Summary.Cell>
-                    </Table.Summary.Row>
-                  )}
-                  <Table.Summary.Row>
-                    <Table.Summary.Cell
-                      index={0}
-                      colSpan={3}
-                      className="text-right font-bold"
-                    >
-                      ລວມທັງໝົດ:
-                    </Table.Summary.Cell>
-                    <Table.Summary.Cell index={1} className="text-lg font-bold">
-                      {Number(order.total).toLocaleString()} ₭
-                    </Table.Summary.Cell>
-                  </Table.Summary.Row>
-                </>
-              )}
+        <div className="order-2 lg:order-1 lg:col-span-2">
+          <Card title="ລາຍການສິນຄ້າ" className="shadow-sm">
+            <OrderItemsTable
+              items={order.items}
+              subtotal={Number(order.subtotal)}
+              discount={Number(order.discount)}
+              total={Number(order.total)}
+              couponCode={order.couponCode}
             />
           </Card>
         </div>
 
         {/* Order Info */}
-        <div className="space-y-6">
-          <Card title="ຂໍ້ມູນການສັ່ງຊື້">
-            <Descriptions column={1} size="small">
+        <div className="order-1 space-y-4 lg:order-2 lg:space-y-6">
+          {/* Order Info Card */}
+          <Card title="ຂໍ້ມູນການສັ່ງຊື້" className="shadow-sm">
+            {/* Mobile Layout */}
+            <div className="space-y-3 sm:hidden">
+              <div className="flex justify-between">
+                <span className="text-gray-500">ເລກທີ່</span>
+                <span className="font-medium">{order.orderNumber}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">ສະຖານະ</span>
+                <Tag
+                  color={
+                    ORDER_STATUS_COLORS[
+                      order.status as keyof typeof ORDER_STATUS_COLORS
+                    ]
+                  }
+                  className="m-0"
+                >
+                  {
+                    ORDER_STATUS_LABELS[
+                      order.status as keyof typeof ORDER_STATUS_LABELS
+                    ]
+                  }
+                </Tag>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">ວັນທີສັ່ງ</span>
+                <span>
+                  {new Date(order.createdAt).toLocaleDateString('lo-LA')}
+                </span>
+              </div>
+              {order.completedAt && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">ວັນທີສຳເລັດ</span>
+                  <span>
+                    {new Date(order.completedAt).toLocaleDateString('lo-LA')}
+                  </span>
+                </div>
+              )}
+            </div>
+            {/* Desktop Layout */}
+            <Descriptions column={1} size="small" className="hidden sm:block">
               <Descriptions.Item label="ເລກທີ່">
                 {order.orderNumber}
               </Descriptions.Item>
@@ -242,8 +239,35 @@ export default async function OrderDetailPage({
             </Descriptions>
           </Card>
 
-          <Card title="ຂໍ້ມູນການຈັດສົ່ງ">
-            <Descriptions column={1} size="small">
+          {/* Shipping Info Card */}
+          <Card title="ຂໍ້ມູນການຈັດສົ່ງ" className="shadow-sm">
+            {/* Mobile Layout */}
+            <div className="space-y-3 sm:hidden">
+              <div className="flex justify-between">
+                <span className="text-gray-500">ຊື່</span>
+                <span className="font-medium">{order.customerName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">ອີເມວ</span>
+                <span className="max-w-[180px] truncate text-right">
+                  {order.customerEmail}
+                </span>
+              </div>
+              {order.customerPhone && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">ເບີໂທ</span>
+                  <span>{order.customerPhone}</span>
+                </div>
+              )}
+              {order.shippingAddress && (
+                <div>
+                  <span className="text-gray-500">ທີ່ຢູ່</span>
+                  <p className="mt-1 text-sm">{order.shippingAddress}</p>
+                </div>
+              )}
+            </div>
+            {/* Desktop Layout */}
+            <Descriptions column={1} size="small" className="hidden sm:block">
               <Descriptions.Item label="ຊື່">
                 {order.customerName}
               </Descriptions.Item>
@@ -264,8 +288,8 @@ export default async function OrderDetailPage({
           </Card>
 
           {order.notes && (
-            <Card title="ໝາຍເຫດ">
-              <p>{order.notes}</p>
+            <Card title="ໝາຍເຫດ" className="shadow-sm">
+              <p className="text-sm sm:text-base">{order.notes}</p>
             </Card>
           )}
         </div>

@@ -88,7 +88,13 @@ export const orderService = {
           input.couponCode,
           subtotal
         );
-        if (couponResult.success && couponResult.data) {
+        if (!couponResult.success) {
+          return {
+            success: false,
+            error: couponResult.error || 'ລະຫັດສ່ວນຫຼຸດບໍ່ຖືກຕ້ອງ',
+          };
+        }
+        if (couponResult.data) {
           discount = couponResult.data.discount;
           couponId = couponResult.data.couponId;
           couponCode = input.couponCode;

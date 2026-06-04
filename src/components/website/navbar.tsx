@@ -4,9 +4,10 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { Menu, X, MessageSquare, LogOut, FileText } from 'lucide-react';
+import { Menu, X, MessageSquare, LogOut, FileText, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { APP_NAME, ROUTES } from '@/constants';
+import { CartIndicator } from '@/components/shop/cart-indicator';
 
 const navLinks = [
   { href: ROUTES.HOME, label: 'ໜ້າຫຼັກ' },
@@ -50,6 +51,29 @@ export function Navbar() {
 
           {isAuthenticated ? (
             <>
+              <Link
+                href={ROUTES.WISHLIST}
+                className={cn(
+                  'flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-primary-600',
+                  pathname === ROUTES.WISHLIST
+                    ? 'text-primary-600'
+                    : 'text-gray-600'
+                )}
+              >
+                <Heart size={16} />
+              </Link>
+              <CartIndicator isActive={pathname === ROUTES.CART} />
+              <Link
+                href={ROUTES.ORDERS}
+                className={cn(
+                  'flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-primary-600',
+                  pathname?.startsWith(ROUTES.ORDERS)
+                    ? 'text-primary-600'
+                    : 'text-gray-600'
+                )}
+              >
+                ຄຳສັ່ງຊື້
+              </Link>
               <Link
                 href={ROUTES.RESUMES}
                 className={cn(
@@ -135,6 +159,43 @@ export function Navbar() {
 
             {isAuthenticated ? (
               <>
+                <Link
+                  href={ROUTES.CART}
+                  className={cn(
+                    'flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-primary-600',
+                    pathname === ROUTES.CART
+                      ? 'text-primary-600'
+                      : 'text-gray-600'
+                  )}
+                  onClick={() => setIsOpen(false)}
+                >
+                  ກະຕ່າ
+                </Link>
+                <Link
+                  href={ROUTES.WISHLIST}
+                  className={cn(
+                    'flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-primary-600',
+                    pathname === ROUTES.WISHLIST
+                      ? 'text-primary-600'
+                      : 'text-gray-600'
+                  )}
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Heart size={16} />
+                  ລາຍການທີ່ມັກ
+                </Link>
+                <Link
+                  href={ROUTES.ORDERS}
+                  className={cn(
+                    'flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-primary-600',
+                    pathname?.startsWith(ROUTES.ORDERS)
+                      ? 'text-primary-600'
+                      : 'text-gray-600'
+                  )}
+                  onClick={() => setIsOpen(false)}
+                >
+                  ຄຳສັ່ງຊື້
+                </Link>
                 <Link
                   href={ROUTES.RESUMES}
                   className={cn(

@@ -100,6 +100,8 @@ export default function WishlistPage() {
       const result = await addToCartAction(productId, 1);
       if (result.success) {
         message.success(result.message);
+        // Update cart indicator
+        window.dispatchEvent(new CustomEvent('cart-updated'));
       } else {
         message.error(result.error);
       }
@@ -135,13 +137,118 @@ export default function WishlistPage() {
     );
   }
 
+  // Mobile Wishlist Item Component
+  const MobileWishlistItem = ({ item }: { item: WishlistItem }) => {
+    const isAvailable = item.product.isActive && item.product.stockQuantity > 0;
+
+    return (
+      <div className="rounded-lg border bg-white p-3 shadow-sm">
+        <div className="flex gap-3">
+          {/* Product Image */}
+          <Link
+            href={ROUTES.SHOP_PRODUCT(item.product.slug || item.product.id)}
+            className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100"
+          >
+            {item.product.thumbnail ? (
+              <Image
+                src={item.product.thumbnail}
+                alt={item.product.name}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
+                ບໍ່ມີຮູບ
+              </div>
+            )}
+            {!item.product.isActive && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                <span className="rounded bg-red-500 px-1 py-0.5 text-xs text-white">
+                  ບໍ່ພ້ອມໃຊ້
+                </span>
+              </div>
+            )}
+            {item.product.stockQuantity === 0 && item.product.isActive && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                <span className="rounded bg-orange-500 px-1 py-0.5 text-xs text-white">
+                  ໝົດສິນຄ້າ
+                </span>
+              </div>
+            )}
+          </Link>
+
+          {/* Product Info */}
+          <div className="flex min-w-0 flex-1 flex-col">
+            <Link
+              href={ROUTES.SHOP_PRODUCT(item.product.slug || item.product.id)}
+              className="line-clamp-2 font-medium text-gray-900 hover:text-primary-500"
+            >
+              {item.product.name}
+            </Link>
+            {item.product.category && (
+              <span className="mt-0.5 text-xs text-gray-500">
+                {item.product.category.name}
+              </span>
+            )}
+            <div className="mt-1 flex items-center gap-2">
+              <span className="font-bold text-primary-600">
+                {item.product.price.toLocaleString()} ₭
+              </span>
+              {item.product.salePrice && (
+                <span className="text-xs text-gray-400 line-through">
+                  {item.product.salePrice.toLocaleString()} ₭
+                </span>
+              )}
+            </div>
+            <span className="mt-0.5 text-xs text-gray-500">
+              ເຫຼືອ: {item.product.stockQuantity} ອັນ
+            </span>
+          </div>
+
+          {/* Delete Button */}
+          <Popconfirm
+            title="ລຶບອອກຈາກລາຍການ"
+            description="ລຶບສິນຄ້ານີ້?"
+            onConfirm={() => handleRemove(item.productId)}
+            okText="ລຶບ"
+            cancelText="ຍົກເລີກ"
+            okButtonProps={{ danger: true }}
+          >
+            <Button
+              type="text"
+              danger
+              icon={<DeleteOutlined />}
+              loading={removing === item.productId}
+              className="flex-shrink-0 self-start"
+            />
+          </Popconfirm>
+        </div>
+
+        {/* Add to Cart Button */}
+        <div className="mt-3 border-t pt-3">
+          <Button
+            type="primary"
+            icon={<ShoppingCartOutlined />}
+            onClick={() => handleAddToCart(item.productId)}
+            loading={addingToCart === item.productId}
+            disabled={!isAvailable}
+            block
+          >
+            {isAvailable ? 'ເພີ່ມໃສ່ກະຕ່າ' : 'ບໍ່ສາມາດສັ່ງຊື້ໄດ້'}
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <HeartFilled className="text-2xl text-red-500" />
-          <h1 className="text-2xl font-bold">
-            ລາຍການທີ່ມັກ ({items.length} ລາຍການ)
+    <div className="container mx-auto px-4 py-4 sm:py-8">
+      {/* Header */}
+      <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <HeartFilled className="text-xl text-red-500 sm:text-2xl" />
+          <h1 className="text-xl font-bold sm:text-2xl">
+            ລາຍການທີ່ມັກ ({items.length})
           </h1>
         </div>
         <Popconfirm
@@ -152,44 +259,59 @@ export default function WishlistPage() {
           cancelText="ຍົກເລີກ"
           okButtonProps={{ danger: true }}
         >
-          <Button danger>ລ້າງທັງໝົດ</Button>
+          <Button danger size="small" className="self-start sm:self-auto">
+            ລ້າງທັງໝົດ
+          </Button>
         </Popconfirm>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {/* Mobile View - List Layout */}
+      <div className="flex flex-col gap-3 sm:hidden">
+        {items.map((item) => (
+          <MobileWishlistItem key={item.id} item={item} />
+        ))}
+      </div>
+
+      {/* Desktop View - Grid Layout */}
+      <div className="hidden gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {items.map((item) => (
           <Card
             key={item.id}
             hoverable
             cover={
-              <div className="relative aspect-square overflow-hidden bg-gray-100">
-                {item.product.thumbnail ? (
-                  <Image
-                    src={item.product.thumbnail}
-                    alt={item.product.name}
-                    fill
-                    className="object-cover transition-transform hover:scale-105"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-gray-400">
-                    ບໍ່ມີຮູບ
-                  </div>
-                )}
-                {!item.product.isActive && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                    <span className="rounded bg-red-500 px-2 py-1 text-sm text-white">
-                      ບໍ່ພ້ອມໃຊ້ງານ
-                    </span>
-                  </div>
-                )}
-                {item.product.stockQuantity === 0 && item.product.isActive && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                    <span className="rounded bg-orange-500 px-2 py-1 text-sm text-white">
-                      ໝົດສິນຄ້າ
-                    </span>
-                  </div>
-                )}
-              </div>
+              <Link
+                href={ROUTES.SHOP_PRODUCT(item.product.slug || item.product.id)}
+              >
+                <div className="relative aspect-square overflow-hidden bg-gray-100">
+                  {item.product.thumbnail ? (
+                    <Image
+                      src={item.product.thumbnail}
+                      alt={item.product.name}
+                      fill
+                      className="object-cover transition-transform hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-gray-400">
+                      ບໍ່ມີຮູບ
+                    </div>
+                  )}
+                  {!item.product.isActive && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                      <span className="rounded bg-red-500 px-2 py-1 text-sm text-white">
+                        ບໍ່ພ້ອມໃຊ້ງານ
+                      </span>
+                    </div>
+                  )}
+                  {item.product.stockQuantity === 0 &&
+                    item.product.isActive && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                        <span className="rounded bg-orange-500 px-2 py-1 text-sm text-white">
+                          ໝົດສິນຄ້າ
+                        </span>
+                      </div>
+                    )}
+                </div>
+              </Link>
             }
             actions={[
               <Button

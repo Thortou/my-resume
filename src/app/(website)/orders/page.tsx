@@ -7,6 +7,7 @@ import {
   EyeOutlined,
   ShoppingOutlined,
   CloseCircleOutlined,
+  RightOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { ROUTES, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from '@/constants';
@@ -89,7 +90,7 @@ export default function OrdersPage() {
     });
   };
 
-  // Table columns
+  // Table columns for desktop
   const columns: ColumnsType<Order> = [
     {
       title: 'ເລກທີ່ຄຳສັ່ງຊື້',
@@ -118,7 +119,7 @@ export default function OrdersPage() {
     {
       title: 'ລາຍການ',
       key: 'items',
-      render: (_: any, record: Order) => `${record._count.items} ລາຍການ`,
+      render: (_: unknown, record: Order) => `${record._count.items} ລາຍການ`,
     },
     {
       title: 'ລວມ',
@@ -142,7 +143,7 @@ export default function OrdersPage() {
       title: '',
       key: 'actions',
       width: 150,
-      render: (_: any, record: Order) => (
+      render: (_: unknown, record: Order) => (
         <div className="flex gap-2">
           <Link href={ROUTES.ORDER_DETAIL(record.id)}>
             <Button type="text" icon={<EyeOutlined />}>
@@ -165,6 +166,55 @@ export default function OrdersPage() {
     },
   ];
 
+  // Compact Mobile Order Card
+  const CompactOrderCard = ({ order }: { order: Order }) => (
+    <Link
+      href={ROUTES.ORDER_DETAIL(order.id)}
+      className="block rounded-lg border bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+    >
+      <div className="flex items-center justify-between">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold">#{order.orderNumber}</span>
+            <Tag color={ORDER_STATUS_COLORS[order.status]} className="m-0">
+              {ORDER_STATUS_LABELS[order.status]}
+            </Tag>
+          </div>
+          <p className="mt-1 text-xs text-gray-500">
+            {new Date(order.createdAt).toLocaleDateString('lo-LA', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+            })}
+            {' · '}
+            {order._count.items} ລາຍການ
+          </p>
+          <p className="mt-1 font-semibold text-primary-600">
+            {Number(order.total).toLocaleString()} ₭
+          </p>
+        </div>
+        <RightOutlined className="text-gray-400" />
+      </div>
+      {order.status === 'PENDING' && (
+        <div className="mt-3 border-t pt-3">
+          <Button
+            danger
+            size="small"
+            icon={<CloseCircleOutlined />}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleCancel(order.id);
+            }}
+            loading={cancelling === order.id}
+          >
+            ຍົກເລີກຄຳສັ່ງຊື້
+          </Button>
+        </div>
+      )}
+    </Link>
+  );
+
   if (loading && orders.length === 0) {
     return (
       <div className="container mx-auto flex min-h-[50vh] items-center justify-center px-4">
@@ -174,8 +224,10 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold">ປະຫວັດການສັ່ງຊື້</h1>
+    <div className="container mx-auto px-4 py-4 sm:py-8">
+      <h1 className="mb-4 text-xl font-bold sm:mb-6 sm:text-2xl">
+        ປະຫວັດການສັ່ງຊື້
+      </h1>
 
       {orders.length === 0 ? (
         <Empty
@@ -189,20 +241,57 @@ export default function OrdersPage() {
           </Link>
         </Empty>
       ) : (
-        <Card>
-          <Table
-            columns={columns}
-            dataSource={orders}
-            rowKey="id"
-            loading={loading}
-            pagination={{
-              ...pagination,
-              showTotal: (total) => `ທັງໝົດ ${total} ຄຳສັ່ງຊື້`,
-            }}
-            onChange={(p) => fetchOrders(p.current)}
-            scroll={{ x: 700 }}
-          />
-        </Card>
+        <>
+          {/* Mobile View - Card Layout */}
+          <div className="flex flex-col gap-3 md:hidden">
+            {orders.map((order) => (
+              <CompactOrderCard key={order.id} order={order} />
+            ))}
+
+            {/* Mobile Pagination */}
+            {pagination.total > pagination.pageSize && (
+              <div className="mt-4 flex items-center justify-between">
+                <span className="text-sm text-gray-500">
+                  {pagination.current} /{' '}
+                  {Math.ceil(pagination.total / pagination.pageSize)} ໜ້າ
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    disabled={pagination.current <= 1}
+                    onClick={() => fetchOrders(pagination.current - 1)}
+                  >
+                    ກ່ອນໜ້າ
+                  </Button>
+                  <Button
+                    disabled={
+                      pagination.current >=
+                      Math.ceil(pagination.total / pagination.pageSize)
+                    }
+                    onClick={() => fetchOrders(pagination.current + 1)}
+                  >
+                    ຕໍ່ໄປ
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Desktop View - Table Layout */}
+          <Card className="hidden md:block">
+            <Table
+              columns={columns}
+              dataSource={orders}
+              rowKey="id"
+              loading={loading}
+              pagination={{
+                ...pagination,
+                showTotal: (total) => `ທັງໝົດ ${total} ຄຳສັ່ງຊື້`,
+                showSizeChanger: false,
+              }}
+              onChange={(p) => fetchOrders(p.current)}
+            />
+          </Card>
+        </>
       )}
     </div>
   );
